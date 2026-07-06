@@ -6,13 +6,15 @@
 <!-- Barra superior de beneficios -->
 <div class="topbar">
   <div class="topbar__track">
-    <span class="topbar__item">⚙ Instalación asistida por teléfono</span>
+
+     <span class="topbar__item">🧉 Industria Nacional 🇦🇷 </span>
+    <span class="topbar__item">🧉 Industria Nacional 🇦🇷 </span>
     <span class="topbar__item">🚚 Envíos a todo el país</span>
     <span class="topbar__item">🛡 Garantía de fábrica</span>
     <span class="topbar__item">💳 3 y 6 cuotas sin interés</span>
-    <span class="topbar__item">⚙ Instalación asistida por teléfono</span>
+    <span class="topbar__item">⚙ Instalación asistida por WhatsApp</span>
     <span class="topbar__item">🚚 Envíos a todo el país</span>
-    <span class="topbar__item">🛡 Garantía de fábrica</span>
+    <span class="topbar__item">🛡 🧉 Industria Nacional 🇦🇷 </span>
     <span class="topbar__item">💳 3 y 6 cuotas sin interés</span>
   </div>
 </div>
@@ -21,11 +23,11 @@
 <header class="header">
   <div class="header__inner">
     <a href="{% url 'catalog:index' %}" class="brand">
-      <span class="brand__mark">CAP<span>/</span>OT</span>
+      <span class="brand__mark">AK<span>/</span>POT</span>
       <span class="brand__sub">amortiguadores</span>
     </a>
     <nav class="nav">
-      <a href="#marcas">Buscá tu marca</a>
+      <a href="#marcas">Nuestros productos</a>
       <a href="#por-que">Por qué elegirnos</a>
       <a href="#contacto">Contacto</a>
     </nav>
@@ -127,44 +129,41 @@
 
     <div class="finder__layout">
       <div class="finder__rail" role="tablist" aria-label="Marcas">
-        {% for brand in brands %}
-        <button class="rail-tab{% if forloop.first %} is-active{% endif %}"
-                data-brand="{{ brand.slug }}"
-                role="tab"
-                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
-          <span class="rail-tab__name">{{ brand.name }}</span>
-          <span class="rail-tab__count">{{ brand.models.count }}</span>
-        </button>
-        {% endfor %}
-      </div>
+                {% for marca, modelos in catalogo.items %}
+                    <button class="brand-tab{% if forloop.first %} is-active{% endif %}" 
+                            role="tab" 
+                            data-target="{{ marca|slugify }}">
+                        {{ marca }}
+                    </button>
+                {% endfor %}
+            </div>
 
-      <div class="finder__panels">
-        {% for brand in brands %}
-        <div class="panel{% if forloop.first %} is-active{% endif %}" data-panel="{{ brand.slug }}">
-          <div class="panel__head">
-            <h3>{{ brand.name }}</h3>
-            <span class="panel__hint">Tocá tu modelo para consultar</span>
-          </div>
-          <div class="model-grid">
-            {% for m in brand.models.all %}
-            <a class="model-chip" target="_blank" rel="noopener"
-               href="https://wa.me/{{ whatsapp_number }}?text={{ 'Hola! Busco un amortiguador de capot para '|add:brand.name|add:' '|add:m.name|urlencode }}">
-              <span class="model-chip__name">{{ m.name }}</span>
-              <span class="model-chip__go">→</span>
-            </a>
-            {% empty %}
-            <p class="panel__empty">Todavía no cargaste modelos para esta marca.</p>
-            {% endfor %}
-          </div>
+            <div class="finder__panels">
+                {% for marca, modelos in catalogo.items %}
+                    <div class="panel{% if forloop.first %} is-active{% endif %}" id="{{ marca|slugify }}">
+                        <div class="panel__head">
+                            <h3>{{ marca }}</h3>
+                            <span class="panel__hint">Tocá tu modelo para consultar</span>
+                        </div>
+                        <div class="model-grid">
+                            {% for m in modelos %}
+                                <a class="model-chip" target="_blank" rel="noopener" href="https://wa.me/{{ whatsapp_number }}?text=Hola! Busco un amortiguador de capot para {{ marca }} {{ m }}">
+                                    <span class="model-chip__name">{{ m }}</span>
+                                    <span class="model-chip__go"></span>
+                                </a>
+                            {% empty %}
+                                <p class="panel__empty">Todavía no cargaste modelos para esta marca.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="panel__empty">Todavía no cargaste marcas en el catálogo.</p>
+                {% endfor %}
+            </div>
+
         </div>
-        {% empty %}
-        <p class="panel__empty">Todavía no cargaste marcas en el catálogo.</p>
-        {% endfor %}
-      </div>
     </div>
-  </div>
 </section>
-
 <!-- Por qué elegirnos -->
 <section class="why" id="por-que">
   <div class="why__inner">
@@ -174,8 +173,8 @@
     <div class="why__grid">
       <article class="why-card">
         <span class="why-card__code">01 · AJUSTE</span>
-        <h3>Fitment verificado</h3>
-        <p>Cruzamos marca, modelo y año antes de confirmar tu pedido, para que el amortiguador entre a la primera.</p>
+        <h3>COMPATIBILIDAD GARANTIZADA</h3>
+        <p>Verificamos marca, modelo y año antes de procesar tu pedido, asegurando que la pieza calce perfecto y a la primera.</p>
       </article>
       <article class="why-card">
         <span class="why-card__code">02 · MATERIAL</span>
@@ -185,7 +184,7 @@
       <article class="why-card">
         <span class="why-card__code">03 · SOPORTE</span>
         <h3>Instalación guiada</h3>
-        <p>Te explicamos por WhatsApp cómo retirar el amortiguador viejo y montar el nuevo en menos de 10 minutos.</p>
+        <p>Te explicamos con un video como retirar el amortiguador viejo y montar el nuevo en menos de 10 minutos.</p>
       </article>
     </div>
   </div>
@@ -209,11 +208,11 @@
 <footer class="footer">
   <div class="footer__inner">
     <div class="brand brand--footer">
-      <span class="brand__mark">CAP<span>/</span>OT</span>
+      <span class="brand__mark">AK<span>/</span>POT</span>
       <span class="brand__sub">amortiguadores</span>
     </div>
-    <p class="footer__text">Amortiguadores a gas para capot · Envíos a todo Argentina</p>
-    <p class="footer__legal">© {% now "Y" %} Cap/Ot Amortiguadores. Todos los derechos reservados.</p>
+    <p class="footer__text">Amortiguadores AKPOT para capot · Envíos a todo Argentina</p>
+    <p class="footer__legal">© {% now "Y" %} AKPOT. Todos los derechos reservados.</p>
   </div>
 </footer>
 
