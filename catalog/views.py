@@ -1,40 +1,51 @@
+import urllib.parse
+
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+
+from .forms import VehicleFinderForm
+from .models import Brand, VehicleModel
+
 
 def index(request):
-    """Landing page: hero + buscador de marcas/modelos."""
-    
-    # Este es tu diccionario manual con todos los autos
-    catalogo_autos = {
-        "Volkswagen": [
-            "Gol", "Gol Trend", "Voyage", "Fox", "Suran", 
-            "Bora", "Vento", "Polo", "Virtus", "Amarok", 
-            "Saveiro", "Taos", "Tiguan",
-        ],
-        "Chevrolet": [
-            "Corsa", "Classic", "Onix", "Prisma", "Cruze", 
-            "Tracker", "S10", "Spin", "Agile", "Meriva",
-        ],
-        "Fiat": [
-            "Uno", "Palio", "Siena", "Cronos", "Argo", 
-            "Toro", "Strada", "Fiorino", "Mobi", "Punto",
-        ],
-        "Renault": [
-            "Clio", "Sandero", "Logan", "Duster", "Kangoo", 
-            "Oroch", "Megane", "Symbol", "Captur", "Kwid",
-        ],
-        "Peugeot": [
-            "206", "207", "208", "2008", "307", "308", 
-            "3008", "Partner", "Expert", "Boxer",
-        ]
-    }
+    """Landing page: hero + buscador de marca/modelo (100% server-side, sin JS)."""
 
-    # Juntamos tus autos con los datos de WhatsApp que ya venían en el código original
+    selected_brand = None
+    brand_id = request.GET.get("brand")
+    if brand_id:
+        selected_brand = Brand.objects.filter(pk=brand_id).first()
+
+    form = VehicleFinderForm(request.GET or None, brand=selected_brand)
+
+    # El botón "Confirmar" solo se muestra si el modelo elegido existe
+    # y pertenece realmente a la marca seleccionada (evita mostrarlo con
+    # un valor de modelo que quedó obsoleto tras cambiar de marca).
+    model_id = request.GET.get("model")
+    mostrar_confirmar = bool(
+        selected_brand and model_id
+        and VehicleModel.objects.filter(pk=model_id, brand=selected_brand).exists()
+    )
+
+    confirmacion = None
+    if "consultar" in request.GET and form.is_valid():
+        model = form.cleaned_data["model"]
+        mensaje = (
+            f"Hola! Quiero consultar por un amortiguador de capot "
+            f"para {model.brand.name} {model.name}."
+        )
+        # Redirect a WhatsApp desactivado a pedido: por ahora "Confirmar" solo
+        # valida la selección y la muestra en pantalla. Para reactivarlo, descomentar:
+        #
+        # whatsapp_number = getattr(settings, "WHATSAPP_NUMBER", "5491112345678")
+        # whatsapp_url = f"https://wa.me/{whatsapp_number}?text={urllib.parse.quote(mensaje)}"
+        # return redirect(whatsapp_url)
+        confirmacion = mensaje
+
     context = {
-        "catalogo": catalogo_autos,
-        "whatsapp_number": getattr(settings, "WHATSAAPP_NUMBER", "5491112345678"),
+        "form": form,
+        "mostrar_confirmar": mostrar_confirmar,
+        "confirmacion": confirmacion,
+        "whatsapp_number": getattr(settings, "WHATSAPP_NUMBER", "5491112345678"),
         "whatsapp_message": "Hola! Quiero consultar por un amortiguador de capot.",
     }
-
-    # Le mandamos todo al index.html
     return render(request, "catalog/index.html", context)
